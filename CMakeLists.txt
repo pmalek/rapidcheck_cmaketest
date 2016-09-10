@@ -1,8 +1,12 @@
 cmake_minimum_required(VERSION 2.8.2)
 
-project(rapidcheck_test1)
+project(rapidcheck_test1 CXX)
 
-include(CTest)
+include(CheckCXXCompilerFlag)
+CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
+if(NOT COMPILER_SUPPORTS_CXX11)
+  message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
+endif()
 
 if (CMAKE_VERSION VERSION_LESS 3.2)
     set(UPDATE_DISCONNECTED_IF_AVAILABLE "")
@@ -35,10 +39,14 @@ endif()
 
 ###########################################################
 
+include(CTest)
+
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 add_executable(rapidcheck_test1 src/main.cpp)
-set_property(TARGET rapidcheck_test1 PROPERTY CXX_STANDARD 11)
-include_directories(rapidcheck_test1 ${rapidcheck_SOURCE_DIR}/include)
-include_directories(rapidcheck_test1 ${rapidcheck_SOURCE_DIR}/extras/gtest/include)
+target_include_directories(rapidcheck_test1 PRIVATE ${rapidcheck_SOURCE_DIR}/include)
+target_include_directories(rapidcheck_test1 PRIVATE ${rapidcheck_SOURCE_DIR}/extras/gtest/include)
 target_link_libraries(rapidcheck_test1 gtest gmock_main rapidcheck)
 
 add_test(NAME rapidcheck_test1_always_the_same_values COMMAND rapidcheck_test1)
